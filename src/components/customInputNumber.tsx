@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface CustomInputNumberProps {
   min?: number;
@@ -7,7 +7,21 @@ interface CustomInputNumberProps {
   name?: string;
   value?: number;
   disabled?: boolean;
+  onChange?: (e: InputEvent) => void;
+  onBlur?: (e: FocusEvent) => void;
 }
+
+const inputEventFor = (input: HTMLInputElement): InputEvent => {
+  const inputEvent = new InputEvent('input');
+  input.dispatchEvent(inputEvent);
+  return inputEvent;
+};
+
+const blurEventFor = (input: HTMLInputElement): FocusEvent => {
+  const blurEvent = new FocusEvent('blur');
+  input.dispatchEvent(blurEvent);
+  return blurEvent;
+};
 
 export const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
   min = 0,
@@ -16,8 +30,11 @@ export const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
   name = 'custom_input_number',
   value: initialValue,
   disabled: isInputEventDisabled = false,
+  onChange,
+  onBlur,
 }) => {
   const [value, setValue] = useState<number>(initialValue || min);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleIncrement = useCallback(() => {
     if (value >= max) return;
@@ -26,7 +43,7 @@ export const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
     } else {
       setValue((prevValue) => prevValue + step);
     }
-  }, [value, min, max, step]);
+  }, [value, min, max, step, setValue]);
 
   const handleDecrement = useCallback(() => {
     if (value <= min) return;
@@ -35,19 +52,35 @@ export const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
     } else {
       setValue((prevValue) => prevValue - step);
     }
-  }, [value, min, max, step]);
+  }, [value, min, max, step, setValue]);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const userInput = parseInt(e.target.value);
-    if (isNaN(userInput)) return;
-    setValue(userInput);
-  }, []);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const userInput = parseInt(e.target.value);
+      if (isNaN(userInput)) return;
+      setValue(userInput);
+    },
+    [setValue],
+  );
+
+  const handleBlur = useCallback(
+    (event: React.FocusEvent<HTMLDivElement>) => {
+      if (event.currentTarget.contains(event.relatedTarget) || !inputRef?.current) return;
+      onBlur?.(blurEventFor(inputRef.current));
+    },
+    [onBlur],
+  );
+
+  useEffect(() => {
+    if (inputRef?.current?.value !== value.toString()) return;
+    onChange?.(inputEventFor(inputRef.current));
+  }, [value, onChange]);
 
   const isMinorButtonDisabled = value <= min || isInputEventDisabled;
   const isPlusButtonDisabled = value >= max || isInputEventDisabled;
 
   return (
-    <div className="flex p-2 gap-2">
+    <div className="flex p-2 gap-2" onBlur={handleBlur}>
       <button
         type="button"
         onClick={handleDecrement}
@@ -65,6 +98,7 @@ export const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
         max={max}
         onChange={handleChange}
         disabled={isInputEventDisabled}
+        ref={inputRef}
         className={`w-12 h-12 text-base text-center border-2 border-gray-400 rounded focus:outline-none bg-transparent ${isInputEventDisabled ? 'opacity-50' : ''}`}
       ></input>
       <button
