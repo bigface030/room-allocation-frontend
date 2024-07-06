@@ -1,4 +1,4 @@
-import { getDefaultRoomAllocation } from '.';
+import getDefaultRoomAllocation from './getDefaultRoomAllocation';
 import { AllocatedRoom, Room } from './types';
 
 describe('getDefaultRoomAllocation', () => {

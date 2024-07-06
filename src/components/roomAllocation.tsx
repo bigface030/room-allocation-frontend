@@ -2,31 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import CustomInputNumber from './customInputNumber';
 import { AllocatedRoom, Guest, Room } from '@/utils/types';
-import { calculateRoomCost, getDefaultRoomAllocation } from '@/utils';
+import getDefaultRoomAllocation from '@/utils/getDefaultRoomAllocation';
+import { updateGuestInRoom, updatePriceBy } from '@/utils';
 
 interface RoomAllocationProps {
   guest: Guest;
   rooms: Room[];
   onChange?: (result: AllocatedRoom[]) => void;
 }
-
-const updateGuestInRoom = (val: { [key: string]: number }, index: number) => {
-  return (result: AllocatedRoom, i: number) => {
-    if (i === index) {
-      return { ...result, ...val };
-    }
-    return result;
-  };
-};
-
-const updatePriceBy = (rooms: Room[]) => {
-  return (result: AllocatedRoom, index: number) => {
-    return {
-      ...result,
-      price: calculateRoomCost(rooms[index], result.adult, result.child),
-    };
-  };
-};
 
 const RoomAllocation: React.FC<RoomAllocationProps> = ({ guest, rooms, onChange }) => {
   const defaultAllocation = useMemo(() => getDefaultRoomAllocation(guest, rooms), [guest, rooms]);
