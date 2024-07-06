@@ -5,6 +5,8 @@ export const calculateRoomCost = (room: Room, adults: number, children: number) 
   return room.roomPrice + adults * room.adultPrice + children * room.childPrice;
 };
 
+export const guestCountFor = (room: AllocatedRoom) => room.adult + room.child;
+
 export const updateGuestInRoom = (val: { [key: string]: number }, index: number) => {
   return (result: AllocatedRoom, i: number) => {
     if (i === index) {

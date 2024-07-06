@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import CustomInputNumber from './customInputNumber';
 import { AllocatedRoom, Guest, Room } from '@/utils/types';
 import getDefaultRoomAllocation from '@/utils/getDefaultRoomAllocation';
-import { updateGuestInRoom, updatePriceBy } from '@/utils';
+import { guestCountFor, updateGuestInRoom, updatePriceBy } from '@/utils';
 
 interface RoomAllocationProps {
   guest: Guest;
@@ -53,7 +53,7 @@ const RoomAllocation: React.FC<RoomAllocationProps> = ({ guest, rooms, onChange 
       {currentAllocation.map((currentRoom, currentRoomIndex) => (
         <div key={currentRoomIndex} className="mt-4">
           {currentRoomIndex > 0 ? <div className="h-px mt-4 bg-gray-300" /> : null}
-          <div className="text-black mt-4">房間：1 人</div>
+          <div className="text-black mt-4">房間：{guestCountFor(currentRoom)} 人</div>
           <div className="flex justify-between mt-4">
             <div>
               <div className="text-black">大人</div>
