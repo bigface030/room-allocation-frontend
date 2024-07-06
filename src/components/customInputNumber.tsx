@@ -23,7 +23,7 @@ const blurEventFor = (input: HTMLInputElement): FocusEvent => {
   return blurEvent;
 };
 
-export const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
+const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
   min = 0,
   max = 10,
   step = 1,
@@ -80,7 +80,7 @@ export const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
   const isPlusButtonDisabled = value >= max || isInputEventDisabled;
 
   return (
-    <div className="flex p-2 gap-2" onBlur={handleBlur}>
+    <div className="flex gap-2" onBlur={handleBlur}>
       <button
         type="button"
         onClick={handleDecrement}
@@ -99,7 +99,7 @@ export const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
         onChange={handleChange}
         disabled={isInputEventDisabled}
         ref={inputRef}
-        className={`w-12 h-12 text-base text-center border-2 border-gray-400 rounded focus:outline-none bg-transparent ${isInputEventDisabled ? 'opacity-50' : ''}`}
+        className={`w-12 h-12 text-black text-base text-center border-2 border-gray-400 rounded focus:outline-none bg-transparent ${isInputEventDisabled ? 'opacity-50' : ''}`}
       ></input>
       <button
         type="button"
@@ -113,3 +113,5 @@ export const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
     </div>
   );
 };
+
+export default CustomInputNumber;
