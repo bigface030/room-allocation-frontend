@@ -1,9 +1,9 @@
 import { Guest, Room, AllocatedRoom } from './types';
 
-function calculateRoomCost(room: Room, adults: number, children: number) {
+export const calculateRoomCost = (room: Room, adults: number, children: number) => {
   if (adults === 0 && children === 0) return 0;
   return room.roomPrice + adults * room.adultPrice + children * room.childPrice;
-}
+};
 
 export const getDefaultRoomAllocation = (guest: Guest, rooms: Room[]): AllocatedRoom[] => {
   const { adult: adultCount, child: childCount } = guest;
