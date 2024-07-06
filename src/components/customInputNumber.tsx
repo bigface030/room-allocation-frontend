@@ -23,6 +23,46 @@ const blurEventFor = (input: HTMLInputElement): FocusEvent => {
   return blurEvent;
 };
 
+const useMultipleClick = (handleClick: () => void) => {
+  const intervalRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const [isMultipleClick, setIsMultipleClick] = useState<boolean>(false);
+  const [isSingleClick, setIsSingleClick] = useState<boolean>(true);
+
+  const handleMultipleClickStart = useCallback(() => {
+    timeoutRef.current = setTimeout(() => {
+      setIsMultipleClick(true);
+    }, 700);
+  }, [setIsMultipleClick]);
+
+  const handleMultipleClickEnd = useCallback(() => {
+    clearTimeout(timeoutRef.current);
+    setIsMultipleClick(false);
+  }, [setIsMultipleClick]);
+
+  const handleSingleClick = useCallback(() => {
+    if (!isSingleClick) return;
+    handleClick();
+  }, [isSingleClick, handleClick]);
+
+  useEffect(() => {
+    if (!isMultipleClick) {
+      clearTimeout(intervalRef.current);
+      setIsSingleClick(true);
+      return;
+    }
+    setIsSingleClick(false);
+    intervalRef.current = setTimeout(handleClick, 100);
+  }, [handleClick, isMultipleClick, setIsSingleClick]);
+
+  return {
+    handleSingleClick,
+    handleMultipleClickStart,
+    handleMultipleClickEnd,
+  };
+};
+
 const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
   min = 0,
   max = 10,
@@ -71,6 +111,18 @@ const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
     [onBlur],
   );
 
+  const {
+    handleSingleClick: handleSingleDecrement,
+    handleMultipleClickStart: handleMultipleDecrementStart,
+    handleMultipleClickEnd: handleMultipleDecrementEnd,
+  } = useMultipleClick(handleDecrement);
+
+  const {
+    handleSingleClick: handleSingleIncrement,
+    handleMultipleClickStart: handleMultipleIncrementStart,
+    handleMultipleClickEnd: handleMultipleIncrementEnd,
+  } = useMultipleClick(handleIncrement);
+
   useEffect(() => {
     if (inputRef?.current?.value !== value.toString()) return;
     onChange?.(inputEventFor(inputRef.current));
@@ -83,7 +135,10 @@ const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
     <div className="flex gap-2" onBlur={handleBlur}>
       <button
         type="button"
-        onClick={handleDecrement}
+        onClick={handleSingleDecrement}
+        onMouseDown={handleMultipleDecrementStart}
+        onMouseUp={handleMultipleDecrementEnd}
+        onMouseLeave={handleMultipleDecrementEnd}
         disabled={isMinorButtonDisabled}
         className={`relative w-12 h-12 bg-transparent border-2 border-blue-500 rounded ${isMinorButtonDisabled ? 'opacity-50' : ''}`}
       >
@@ -103,7 +158,10 @@ const CustomInputNumber: React.FC<CustomInputNumberProps> = ({
       ></input>
       <button
         type="button"
-        onClick={handleIncrement}
+        onClick={handleSingleIncrement}
+        onMouseDown={handleMultipleIncrementStart}
+        onMouseUp={handleMultipleIncrementEnd}
+        onMouseLeave={handleMultipleIncrementEnd}
         disabled={isPlusButtonDisabled}
         className={`relative w-12 h-12 bg-transparent border-2 border-blue-500 rounded ${isPlusButtonDisabled ? 'opacity-50' : ''}`}
       >
